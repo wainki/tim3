@@ -1,0 +1,71 @@
+pipeline {
+    agent any 
+    stages {
+        stage ('checkout') {
+            steps {
+                script {
+                    try {
+                         git 'https://github.com/mankinimbom/maven.git'
+
+                    }
+                    catch (Exception e1) {
+                        mail bcc: '', body: 'jenkins failed to download code from  the git  repository',
+                         cc: 'wainkijulse@gmail.com',
+                         from: '', replyTo: '', subject: 'git clone failed',
+                          to: 'wainkijulse@gmail.com'
+                          error ('git clone failed')
+                    }
+                }
+            }
+        }
+        stage ('build') {
+            steps {
+                script {
+                    try {
+                        sh 'mvn package'
+
+                    }
+                    catch (Exception e2) {
+                        mail bcc: '', body: 'jenkins failed to download code from repository',
+                         cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'maven package failed',
+                          to: 'wainkijulse@gmail.com'
+                          error ('maven package failed')
+                    }
+                }
+            }
+        }
+        stage ('test') {
+            steps {
+                script {
+                    try {
+                        git 'https://github.com/mankinimbom/testingproject.git'
+                        sh 'java -jar /var/lib/jenkins/workspace/demo_8/testing.jar '
+
+                    }
+                    catch (Exception e3) {
+                        mail bcc: '', body: 'jenkins failed to download unit test from the repository',
+                         cc: 'wainkijulse@gmail.com', from: '', replyTo: '',
+                          subject: 'test failed', to: 'wainkijulse@gmail.com'
+                          error ('test failed')
+                    }
+                }
+            }
+        }
+        stage ('deploy') {
+            steps {
+                script {
+                    try {
+                        deploy adapters: [tomcat9(credentialsId: '748aeede-7406-40b4-91c2-3f396993d70c', path: '',
+                         url: 'http://172.29.162.137:8083')], contextPath: 'julio', war: '**/*.war'
+
+                    }
+                    catch (Exception e4) {
+                        mail bcc: '', body: 'jenkins failed to deploy code', cc: 'wainkijulse@gmail.com', from: '', replyTo: '', subject: 'deployment failed', to: 'wainkijulse@gmail.com'
+                        error ('deployment failed')
+                    }
+                }
+            }
+        }
+    }
+}

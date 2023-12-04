@@ -1,0 +1,14 @@
+node('built-in') {
+    stage('checkout') {
+    git 'https://github.com/mankinimbom/maven.git'
+}
+    stage('build') {
+    sh 'mvn package'
+}
+    stage('test') {
+    git 'https://github.com/mankinimbom/testingproject.git'
+}
+    stage('deploy') {
+    deploy adapters: [tomcat9(credentialsId: '748aeede-7406-40b4-91c2-3f396993d70c', path: '', url: 'http://172.29.162.137:8083')], contextPath: 'ok', war: '**/*.war'
+}
+}
